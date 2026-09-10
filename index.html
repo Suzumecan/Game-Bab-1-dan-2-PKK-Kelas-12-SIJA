@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kuis Toko: Pemasaran & Distribusi</title>
+<style>
+  :root{
+    --ink:#1B2430;
+    --ink-soft:#2A3644;
+    --paper:#F7F4EC;
+    --paper-dim:#EDE7D8;
+    --gold:#E2A63B;
+    --gold-deep:#B9822A;
+    --teal:#2F6F6D;
+    --teal-deep:#22504E;
+    --red:#B54A3F;
+    --line: rgba(27,36,48,0.14);
+    --radius: 4px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--ink);
+    color:var(--paper);
+    font-family: Georgia, 'Times New Roman', serif;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: 32px 16px;
+  }
+  .sans{ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+
+  .stage{
+    width:100%;
+    max-width: 920px;
+  }
+
+  /* ---------- Header / storefront sign ---------- */
+  .signboard{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    padding: 0 4px 18px 4px;
+    border-bottom: 2px solid var(--gold);
+    margin-bottom: 28px;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .signboard h1{
+    font-size: clamp(28px, 4vw, 40px);
+    line-height: 1.1;
+    margin:0;
+    font-weight: 400;
+    letter-spacing: 0.2px;
+  }
+  .signboard h1 em{
+    font-style: normal;
+    color: var(--gold);
+  }
+  .signboard p{
+    margin: 8px 0 0 0;
+    color: rgba(247,244,236,0.65);
+    font-size: 15px;
+    max-width: 46ch;
+  }
+  .stall-tag{
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.02em;
+    color: var(--ink);
+    background: var(--gold);
+    padding: 5px 11px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  /* ---------- Chapter rail ---------- */
+  .rail{
+    display:flex;
+    gap: 10px;
+    margin-bottom: 22px;
+  }
+  .rail-item{
+    flex:1;
+    background: var(--ink-soft);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    position:relative;
+    overflow:hidden;
+  }
+  .rail-item .fill{
+    position:absolute;
+    left:0; top:0; bottom:0;
+    width:0%;
+    background: rgba(226,166,59,0.16);
+    transition: width 0.4s ease;
+  }
+  .rail-item .label{
+    position:relative;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    font-size: 12.5px;
+    color: rgba(247,244,236,0.55);
+    display:flex;
+    justify-content:space-between;
+  }
+  .rail-item .name{
+    position:relative;
+    font-size: 15px;
+    margin-top: 4px;
+    color: var(--paper);
+  }
+  .rail-item.active{ border-color: var(--gold); }
+
+  /* ---------- Card ---------- */
+  .counter{
+    background: var(--paper);
+    color: var(--ink);
+    border-radius: 6px;
+    padding: 34px 34px 28px 34px;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.35);
+    min-height: 360px;
+    display:flex;
+    flex-direction:column;
+  }
+  .qmeta{
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    font-size: 12.5px;
+    color: var(--teal-deep);
+    display:flex;
+    justify-content:space-between;
+    margin-bottom: 14px;
+  }
+  .qtext{
+    font-size: clamp(19px, 2.4vw, 23px);
+    line-height: 1.4;
+    margin: 0 0 22px 0;
+  }
+  .options{
+    display:flex;
+    flex-direction:column;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .opt{
+    text-align:left;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    font-size: 15.5px;
+    padding: 13px 16px;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    cursor:pointer;
+    display:flex;
+    gap: 12px;
+    align-items:flex-start;
+    color: var(--ink);
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  .opt:hover:not(.locked){ border-color: var(--teal); background: #fbfaf6; }
+  .opt .tag{
+    flex:0 0 auto;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    display:flex; align-items:center; justify-content:center;
+    font-size: 12px;
+    color: rgba(27,36,48,0.5);
+  }
+  .opt.correct{ border-color: var(--teal); background: rgba(47,111,109,0.08); }
+  .opt.correct .tag{ background: var(--teal); border-color:var(--teal); color:#fff; }
+  .opt.wrong{ border-color: var(--red); background: rgba(181,74,63,0.07); }
+  .opt.wrong .tag{ background: var(--red); border-color:var(--red); color:#fff; }
+  .opt.locked{ cursor:default; }
+
+  .explain{
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    line-height:1.55;
+    color: var(--ink-soft);
+    background: var(--paper-dim);
+    border-left: 3px solid var(--gold-deep);
+    padding: 12px 14px;
+    border-radius: 3px;
+    margin-top: 6px;
+    display:none;
+  }
+  .explain.show{ display:block; }
+
+  .foot{
+    margin-top: auto;
+    padding-top: 18px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  }
+  .score-chip{
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+  .next-btn{
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    padding: 11px 20px;
+    border-radius: var(--radius);
+    font-size: 14.5px;
+    cursor:pointer;
+    opacity: 0.35;
+    pointer-events:none;
+    transition: opacity 0.15s ease;
+  }
+  .next-btn.ready{ opacity:1; pointer-events:auto; }
+  .next-btn:hover.ready{ background: var(--teal-deep); }
+
+  /* ---------- Result screen ---------- */
+  .result{
+    text-align:left;
+  }
+  .result .big{
+    font-size: clamp(44px, 8vw, 64px);
+    color: var(--teal-deep);
+    line-height:1;
+    margin: 6px 0 2px 0;
+  }
+  .result .verdict{
+    font-size: 17px;
+    margin-bottom: 18px;
+    color: var(--ink-soft);
+  }
+  .breakdown{
+    display:flex;
+    gap: 14px;
+    margin: 6px 0 22px 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  }
+  .breakdown div{
+    flex:1;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+  }
+  .breakdown .n{ font-size: 22px; color: var(--ink); }
+  .breakdown .t{ font-size: 12.5px; color: var(--ink-soft); margin-top:2px; }
+  .restart-btn{
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: var(--gold);
+    color: var(--ink);
+    border:none;
+    padding: 12px 22px;
+    border-radius: var(--radius);
+    font-size: 14.5px;
+    cursor:pointer;
+  }
+  .restart-btn:hover{ background: var(--gold-deep); }
+
+  footer.note{
+    text-align:center;
+    color: rgba(247,244,236,0.35);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    margin-top: 18px;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ transition:none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+
+  <div class="signboard">
+    <div>
+      <h1>Kuis Toko: <em>Pemasaran &amp; Distribusi</em></h1>
+      <p class="sans">20 soal pilihan ganda — Bab 1 Teknik Pemasaran Produk dan Bab 2 Distribusi &amp; Layanan Pelanggan.</p>
+    </div>
+    <span class="stall-tag">20 SOAL</span>
+  </div>
+
+  <div class="rail" id="rail"></div>
+
+  <div class="counter" id="counter"></div>
+
+  <footer class="note">Buka sebagai halaman statis — cocok untuk GitHub Pages.</footer>
+</div>
+
+<script>
+const QUESTIONS = [
+  // ---------------- BAB 1: TEKNIK PEMASARAN PRODUK ----------------
+  {
+    chapter: "Bab 1",
+    q: "Apa yang dimaksud dengan bauran pemasaran (marketing mix)?",
+    options: [
+      "Kombinasi elemen produk, harga, distribusi, dan promosi untuk mencapai tujuan pemasaran",
+      "Daftar harga produk milik pesaing di pasar",
+      "Strategi menekan biaya produksi serendah mungkin",
+      "Teknik negosiasi harga dengan pemasok bahan baku"
+    ],
+    correct: 0,
+    explain: "Marketing mix adalah kombinasi Product, Price, Place, dan Promotion (4P) yang dikelola bersama agar tujuan pemasaran tercapai."
+  },
+  {
+    chapter: "Bab 1",
+    q: "Manakah yang termasuk salah satu unsur 4P dalam bauran pemasaran?",
+    options: ["Packaging", "Price", "Personality", "Profit"],
+    correct: 1,
+    explain: "4P terdiri dari Product, Price, Place, dan Promotion. Packaging, Personality, dan Profit bukan bagian dari kerangka 4P."
+  },
+  {
+    chapter: "Bab 1",
+    q: "Segmentasi pasar berdasarkan usia, jenis kelamin, dan tingkat pendapatan disebut segmentasi...",
+    options: ["Geografis", "Demografis", "Psikografis", "Perilaku"],
+    correct: 1,
+    explain: "Segmentasi demografis mengelompokkan konsumen berdasarkan variabel seperti usia, gender, pendapatan, dan pendidikan."
+  },
+  {
+    chapter: "Bab 1",
+    q: "Proses memilih satu atau lebih segmen pasar yang akan dilayani perusahaan disebut...",
+    options: ["Positioning", "Targeting", "Branding", "Diferensiasi"],
+    correct: 1,
+    explain: "Targeting adalah tahap menentukan segmen mana yang akan menjadi sasaran utama pemasaran, setelah segmentasi dilakukan."
+  },
+  {
+    chapter: "Bab 1",
+    q: "Membangun citra dan persepsi khusus atas suatu produk di benak konsumen dibandingkan pesaing disebut...",
+    options: ["Targeting", "Segmentasi", "Positioning", "Promosi"],
+    correct: 2,
+    explain: "Positioning adalah upaya menempatkan citra produk secara khas di benak konsumen relatif terhadap pesaing."
+  },
+  {
+    chapter: "Bab 1",
+    q: "Teknik promosi yang dilakukan melalui interaksi langsung antara penjual dan calon pembeli disebut...",
+    options: ["Advertising", "Personal selling", "Publicity", "Sales promotion"],
+    correct: 1,
+    explain: "Personal selling melibatkan komunikasi tatap muka langsung antara tenaga penjual dan calon pelanggan."
+  },
+  {
+    chapter: "Bab 1",
+    q: "Pemberian diskon, kupon, atau sampel produk untuk mendorong pembelian dalam jangka pendek termasuk teknik...",
+    options: ["Personal selling", "Sales promotion", "Public relations", "Direct marketing"],
+    correct: 1,
+    explain: "Sales promotion adalah insentif jangka pendek (diskon, kupon, sampel) yang dirancang untuk mempercepat keputusan beli."
+  },
+  {
+    chapter: "Bab 1",
+    q: "Tahap dalam siklus hidup produk yang ditandai dengan penjualan mulai menurun disebut tahap...",
+    options: ["Perkenalan", "Pertumbuhan", "Kedewasaan", "Penurunan"],
+    correct: 3,
+    explain: "Product life cycle terdiri dari perkenalan, pertumbuhan, kedewasaan, dan penurunan — tahap terakhir ditandai penurunan penjualan."
+  },
+  {
+    chapter: "Bab 1",
+    q: "Nama, istilah, simbol, atau desain yang membedakan produk suatu perusahaan dari pesaingnya disebut...",
+    options: ["Positioning", "Merek (branding)", "Kemasan", "Label"],
+    correct: 1,
+    explain: "Merek/branding berfungsi sebagai identitas yang membedakan produk suatu perusahaan dari produk pesaing."
+  },
+  {
+    chapter: "Bab 1",
+    q: "Berikut ini yang termasuk media pemasaran digital adalah...",
+    options: ["Billboard di jalan raya", "Brosur cetak", "Media sosial dan situs web", "Pameran dagang tatap muka"],
+    correct: 2,
+    explain: "Pemasaran digital memanfaatkan kanal daring seperti media sosial, situs web, dan iklan digital untuk menjangkau konsumen."
+  },
+
+  // ---------------- BAB 2: DISTRIBUSI & LAYANAN PELANGGAN ----------------
+  {
+    chapter: "Bab 2",
+    q: "Fungsi utama distribusi dalam pemasaran adalah...",
+    options: [
+      "Menetapkan harga jual produk",
+      "Menyalurkan produk dari produsen ke konsumen",
+      "Merancang desain kemasan produk",
+      "Menentukan segmen pasar sasaran"
+    ],
+    correct: 1,
+    explain: "Distribusi memastikan produk sampai dari produsen ke konsumen melalui saluran yang tepat, tepat waktu, dan tepat tempat."
+  },
+  {
+    chapter: "Bab 2",
+    q: "Saluran distribusi di mana produsen menjual langsung ke konsumen tanpa perantara disebut distribusi...",
+    options: ["Langsung", "Tidak langsung", "Intensif", "Eksklusif"],
+    correct: 0,
+    explain: "Distribusi langsung terjadi ketika produsen menjual produknya langsung kepada konsumen akhir tanpa perantara."
+  },
+  {
+    chapter: "Bab 2",
+    q: "Strategi distribusi yang menempatkan produk di sebanyak mungkin outlet/toko disebut distribusi...",
+    options: ["Eksklusif", "Selektif", "Intensif", "Langsung"],
+    correct: 2,
+    explain: "Distribusi intensif bertujuan membuat produk tersedia seluas mungkin, umumnya untuk barang kebutuhan sehari-hari."
+  },
+  {
+    chapter: "Bab 2",
+    q: "Strategi distribusi yang hanya menunjuk satu distributor/pengecer di suatu wilayah tertentu disebut distribusi...",
+    options: ["Intensif", "Selektif", "Eksklusif", "Langsung"],
+    correct: 2,
+    explain: "Distribusi eksklusif membatasi penjualan pada satu perantara di wilayah tertentu, biasa dipakai untuk produk premium."
+  },
+  {
+    chapter: "Bab 2",
+    q: "Pihak yang membeli produk dari produsen dalam jumlah besar untuk dijual kembali ke pengecer disebut...",
+    options: ["Agen", "Grosir (wholesaler)", "Konsumen akhir", "Makelar"],
+    correct: 1,
+    explain: "Grosir membeli dalam volume besar dari produsen lalu menjualnya kembali dalam jumlah lebih kecil kepada pengecer."
+  },
+  {
+    chapter: "Bab 2",
+    q: "Pihak yang menjual produk langsung ke konsumen akhir dalam jumlah kecil disebut...",
+    options: ["Distributor", "Grosir", "Pengecer (retailer)", "Produsen"],
+    correct: 2,
+    explain: "Pengecer/retailer adalah mata rantai terakhir yang menjual produk langsung kepada konsumen akhir."
+  },
+  {
+    chapter: "Bab 2",
+    q: "Kegiatan mengelola aliran barang, penyimpanan, dan transportasi dari produsen hingga konsumen disebut...",
+    options: ["Branding", "Logistik", "Segmentasi", "Positioning"],
+    correct: 1,
+    explain: "Logistik mencakup pengelolaan penyimpanan, persediaan, dan transportasi agar barang sampai secara efisien."
+  },
+  {
+    chapter: "Bab 2",
+    q: "Layanan yang diberikan perusahaan kepada pelanggan sebelum, saat, dan sesudah transaksi disebut...",
+    options: ["Distribusi", "Layanan pelanggan (customer service)", "Promosi", "Riset pasar"],
+    correct: 1,
+    explain: "Layanan pelanggan mencakup seluruh interaksi dengan pelanggan, mulai dari sebelum pembelian hingga purnajual."
+  },
+  {
+    chapter: "Bab 2",
+    q: "Langkah pertama yang tepat saat menangani keluhan pelanggan adalah...",
+    options: [
+      "Membela kebijakan perusahaan terlebih dahulu",
+      "Mendengarkan keluhan dengan empati tanpa memotong pembicaraan",
+      "Mengabaikan keluhan jika dianggap tidak penting",
+      "Meminta pelanggan menghubungi pihak lain"
+    ],
+    correct: 1,
+    explain: "Mendengarkan dengan empati membuat pelanggan merasa dihargai dan membantu menemukan akar masalah sebelum memberi solusi."
+  },
+  {
+    chapter: "Bab 2",
+    q: "Strategi menjaga hubungan jangka panjang dengan pelanggan agar tetap loyal disebut...",
+    options: ["CRM (Customer Relationship Management)", "SWOT", "STP", "Marketing mix"],
+    correct: 0,
+    explain: "CRM adalah pendekatan untuk mengelola dan memelihara hubungan dengan pelanggan demi loyalitas jangka panjang."
+  }
+];
+
+let current = 0;
+let score = 0;
+let answered = false;
+const answersLog = [];
+
+const railEl = document.getElementById('rail');
+const counterEl = document.getElementById('counter');
+
+function chapterCounts(){
+  const c = {};
+  QUESTIONS.forEach(q => c[q.chapter] = (c[q.chapter]||0)+1);
+  return c;
+}
+function chapterProgress(chapterName){
+  const total = QUESTIONS.filter(q=>q.chapter===chapterName).length;
+  let done = 0;
+  for(let i=0;i<current;i++){ if(QUESTIONS[i].chapter===chapterName) done++; }
+  if(current < QUESTIONS.length && QUESTIONS[current].chapter===chapterName && answered) done++;
+  return {done, total};
+}
+
+function renderRail(){
+  const counts = chapterCounts();
+  const chapters = Object.keys(counts);
+  railEl.innerHTML = chapters.map(ch => {
+    const {done,total} = chapterProgress(ch);
+    const pct = Math.round((done/total)*100);
+    const active = current < QUESTIONS.length && QUESTIONS[current].chapter === ch;
+    return `<div class="rail-item ${active?'active':''}">
+      <div class="fill" style="width:${pct}%"></div>
+      <div class="label"><span>${ch}</span><span>${done}/${total}</span></div>
+      <div class="name">${ch === 'Bab 1' ? 'Teknik Pemasaran Produk' : 'Distribusi & Layanan Pelanggan'}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderQuestion(){
+  answered = false;
+  const item = QUESTIONS[current];
+  const letters = ['A','B','C','D'];
+  counterEl.innerHTML = `
+    <div class="qmeta">
+      <span>${item.chapter} · Soal ${current+1} dari ${QUESTIONS.length}</span>
+      <span>Skor sementara: ${score}</span>
+    </div>
+    <p class="qtext">${item.q}</p>
+    <div class="options" id="options">
+      ${item.options.map((opt,i)=>`
+        <button class="opt" data-i="${i}">
+          <span class="tag">${letters[i]}</span>
+          <span>${opt}</span>
+        </button>
+      `).join('')}
+    </div>
+    <div class="explain" id="explain">${item.explain}</div>
+    <div class="foot">
+      <span class="score-chip sans">Ketuk salah satu jawaban untuk melanjutkan</span>
+      <button class="next-btn sans" id="nextBtn">${current === QUESTIONS.length-1 ? 'Lihat hasil' : 'Soal berikutnya'}</button>
+    </div>
+  `;
+  document.querySelectorAll('.opt').forEach(btn=>{
+    btn.addEventListener('click', ()=>selectOption(parseInt(btn.dataset.i)));
+  });
+  document.getElementById('nextBtn').addEventListener('click', nextQuestion);
+  renderRail();
+}
+
+function selectOption(i){
+  if(answered) return;
+  answered = true;
+  const item = QUESTIONS[current];
+  const isCorrect = i === item.correct;
+  if(isCorrect) score++;
+  answersLog.push({chapter:item.chapter, correct:isCorrect});
+
+  document.querySelectorAll('.opt').forEach((btn, idx)=>{
+    btn.classList.add('locked');
+    if(idx === item.correct) btn.classList.add('correct');
+    else if(idx === i) btn.classList.add('wrong');
+  });
+  document.getElementById('explain').classList.add('show');
+  document.getElementById('nextBtn').classList.add('ready');
+  renderRail();
+}
+
+function nextQuestion(){
+  if(!answered) return;
+  current++;
+  if(current < QUESTIONS.length){
+    renderQuestion();
+  } else {
+    renderResult();
+  }
+}
+
+function renderResult(){
+  const total = QUESTIONS.length;
+  const bab1 = answersLog.filter(a=>a.chapter==='Bab 1');
+  const bab2 = answersLog.filter(a=>a.chapter==='Bab 2');
+  const bab1Correct = bab1.filter(a=>a.correct).length;
+  const bab2Correct = bab2.filter(a=>a.correct).length;
+  const pct = Math.round((score/total)*100);
+  let verdict;
+  if(pct >= 90) verdict = "Luar biasa — penguasaan materi sangat kuat.";
+  else if(pct >= 70) verdict = "Bagus — sebagian besar konsep sudah dikuasai.";
+  else if(pct >= 50) verdict = "Cukup — ada beberapa konsep yang perlu diulang.";
+  else verdict = "Perlu belajar lagi — coba tinjau ulang Bab 1 dan Bab 2.";
+
+  counterEl.innerHTML = `
+    <div class="result">
+      <div class="qmeta"><span>Hasil akhir</span><span></span></div>
+      <div class="big">${score}/${total}</div>
+      <div class="verdict sans">${verdict}</div>
+      <div class="breakdown">
+        <div>
+          <div class="n">${bab1Correct}/${bab1.length}</div>
+          <div class="t">Bab 1 · Teknik Pemasaran Produk</div>
+        </div>
+        <div>
+          <div class="n">${bab2Correct}/${bab2.length}</div>
+          <div class="t">Bab 2 · Distribusi & Layanan Pelanggan</div>
+        </div>
+      </div>
+      <button class="restart-btn" id="restartBtn">Ulangi kuis</button>
+    </div>
+  `;
+  document.getElementById('restartBtn').addEventListener('click', ()=>{
+    current = 0; score = 0; answersLog.length = 0;
+    renderQuestion();
+  });
+  document.querySelectorAll('.rail-item').forEach(el=>el.classList.remove('active'));
+}
+
+renderQuestion();
+</script>
+</body>
+</html>
